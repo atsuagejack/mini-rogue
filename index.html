@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Rogue</title>
+<style>
+body {
+  font-family: sans-serif;
+  background:#111;
+  color:#eee;
+  text-align:center;
+  margin:0;
+  padding:20px;
+}
+#game {
+  max-width:400px;
+  margin:auto;
+  padding:20px;
+  border:1px solid #444;
+  border-radius:12px;
+  background:#1b1b1b;
+}
+button {
+  margin:8px;
+  padding:12px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+}
+.attack { background:#c0392b; color:white; }
+.defend { background:#2980b9; color:white; }
+.reset { background:#27ae60; color:white; }
+.log {
+  margin-top:15px;
+  min-height:60px;
+  font-size:14px;
+  text-align:left;
+}
+.hp { font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div id="game">
+  <h2>Mini Rogue</h2>
+  <p>あなた HP: <span id="playerHP" class="hp"></span></p>
+  <p>敵 HP: <span id="enemyHP" class="hp"></span></p>
+
+  <button class="attack" onclick="attack()">攻撃</button>
+  <button class="defend" onclick="defend()">防御</button>
+  <button class="reset" onclick="resetGame()">リセット</button>
+
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+let player = { hp: 30, defending: false };
+let enemy = { hp: 30 };
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function updateUI() {
+  document.getElementById("playerHP").textContent = player.hp;
+  document.getElementById("enemyHP").textContent = enemy.hp;
+}
+
+function log(text) {
+  document.getElementById("log").innerHTML = text;
+}
+
+function enemyTurn() {
+  if (enemy.hp <= 0) return;
+
+  let damage = randomInt(3, 8);
+  if (player.defending) {
+    damage = Math.floor(damage / 2);
+    player.defending = false;
+  }
+
+  player.hp -= damage;
+  log("敵の攻撃！ " + damage + " ダメージ");
+
+  checkGameOver();
+  updateUI();
+}
+
+function attack() {
+  if (player.hp <= 0 || enemy.hp <= 0) return;
+
+  let damage = randomInt(5, 10);
+  enemy.hp -= damage;
+  log("あなたの攻撃！ " + damage + " ダメージ");
+
+  checkGameOver();
+  updateUI();
+  setTimeout(enemyTurn, 500);
+}
+
+function defend() {
+  if (player.hp <= 0 || enemy.hp <= 0) return;
+
+  player.defending = true;
+  log("あなたは防御した（次のダメージ半減）");
+
+  setTimeout(enemyTurn, 500);
+}
+
+function checkGameOver() {
+  if (enemy.hp <= 0) {
+    log("敵を倒した！ 勝利！");
+  }
+  if (player.hp <= 0) {
+    log("あなたは倒れた… ゲームオーバー");
+  }
+}
+
+function resetGame() {
+  player.hp = 30;
+  player.defending = false;
+  enemy.hp = 30;
+  log("新しい戦闘が始まった！");
+  updateUI();
+}
+
+resetGame();
+</script>
+
+</body>
+</html>
